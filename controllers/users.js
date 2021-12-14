@@ -21,7 +21,7 @@ usersRouter.post('/', (req, res) => {
     User.create(req.body, (error, user) => {
         console.log(user, 'is the user')
         req.session.user = user._id; // this is a login
-        res.status(200).send({user: user._id}); // send the logged in user to a private space in the site
+        res.status(200).send({ user: user._id, birthdate: user.birthdate }); // send the logged in user to a private space in the site
     });
 });
 
@@ -35,15 +35,15 @@ usersRouter.post('/login', (req, res) => {
     // step 1 - find the user in the database by their email/username
     User.findOne({ username: req.body.username }, '+password', (err, foundUser) => {
         // step 1.1 - if the user is not found, respond with a error saying invalid credentials
-        if(!foundUser) return res.status(400).send('Invalid Credentials');
+        if (!foundUser) return res.status(400).send('Invalid Credentials');
         // step 2 - assuming we've found user, now we compare passwords - plain text - password digest
-        if(!bcrypt.compareSync(req.body.password, foundUser.password)) {
+        if (!bcrypt.compareSync(req.body.password, foundUser.password)) {
             // step 2.1 - if there is not match, respond with a error saying invalid credentials
             return res.status(400).send('Invalid Credentials');
         }
         // step 3 assuming there is a match, we create a session and redirect to dashboard
         req.session.user = foundUser._id
-        res.status(200).send({user: foundUser._id});
+        res.status(200).send({ user: foundUser._id, birthdate: foundUser.birthdate });
     })
 });
 
